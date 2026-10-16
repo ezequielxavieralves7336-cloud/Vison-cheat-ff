@@ -1,0 +1,26 @@
+name: Gerar APK
+on:
+  push:
+    branches: [ principal ]
+  workflow_dispatch:
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+      - name: Preparar
+        run: |
+          find . -name gradlew -exec chmod +x {} \;
+          echo "GRADLEW=$(find . -name gradlew | head -n1)" >> $GITHUB_ENV
+      - name: Build
+        run: |
+          cd $(dirname $GRADLEW)
+          ./gradlew assembleDebug
+      - uses: actions/upload-artifact@v4
+        with:
+          name: APK
+          path: "**/app-debug.apk"
